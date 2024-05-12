@@ -20,7 +20,7 @@ load_module path/ngx_http_cre_module.so;
 nginx -t && nginx -s reload
 ```
 
-POST HTTP header `vtoken: whoami` （测试程序只允许使用 `whoami` 命令）
+POST HTTP header `Authtokenstr: whoami`
 
 **如果无结果返回，可尝试增加header数量**
 ![](img/run.jpg)

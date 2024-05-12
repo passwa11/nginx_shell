@@ -17,7 +17,7 @@ load_module path/ngx_http_cre_module.so;
 ```
 然后重载nginx
 ```
-nignx -s reload
+nginx -t && nginx -s reload
 ```
 
 POST HTTP header `vtoken: whoami` （测试程序只允许使用 `whoami` 命令）
